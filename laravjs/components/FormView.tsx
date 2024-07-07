@@ -2,8 +2,10 @@ import { useMemo, useState } from "preact/hooks"
 import { httpPost, httpPut, useHttpState } from "../util/requests"
 import { useLocation } from "wouter-preact"
 import { Data, Field, FieldName, FieldValue, shouldRenderField, ViewType } from "./Fields"
+import { usePageTitle } from "../util/hooks"
 
 export function EditView({id, resource, fields}: {id: number|string, resource: string, fields: Field[]}) {
+    usePageTitle(`edit ${id}-${resource}-Admin`)
     const view = ViewType.EDIT
     const editFields = useMemo(() => {
         return fields.filter(field => shouldRenderField({view, field}))
@@ -13,6 +15,7 @@ export function EditView({id, resource, fields}: {id: number|string, resource: s
 }
 
 export function CreateView({resource, fields}: {resource: string, fields: Field[]}) {
+    usePageTitle(`create ${resource}-Admin`)
     const view = ViewType.CREATE
     const createFields = useMemo(() => {
         return fields.filter(field => shouldRenderField({view, field}))

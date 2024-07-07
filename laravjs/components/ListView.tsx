@@ -3,11 +3,13 @@ import { useHttpState } from '../util/requests';
 import LoadingPanel from "./LoadingPanel";
 import { Link } from 'wouter-preact';
 import { Field, FieldName, FieldValue, shouldRenderField, ViewType } from './Fields';
+import { usePageTitle } from '../util/hooks';
 
 const view = ViewType.LIST
 
 export default function ListView({resource, fields} :{resource: string, fields: Field[]}) {
     const data = useHttpState(`/admin/api/${resource}`)
+    usePageTitle(`${resource}-Admin`)
 
     if (data == null) {
         return <LoadingPanel/>

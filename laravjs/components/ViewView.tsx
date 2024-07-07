@@ -1,3 +1,4 @@
+import { usePageTitle } from "../util/hooks";
 import { useHttpState } from "../util/requests";
 import { Field, FieldName, FieldValue, ViewType } from "./Fields";
 import LoadingPanel from "./LoadingPanel";
@@ -5,6 +6,7 @@ import LoadingPanel from "./LoadingPanel";
 const view = ViewType.VIEW
 
 export default function ViewView({id, resource, fields}: {id: number|string, resource: string, fields: Field[]}) {
+    usePageTitle(`${id}-${resource}-Admin`)
     const data = useHttpState(`/admin/api/${resource}/${id}`)
     if (data == null) {
         return <LoadingPanel/>
