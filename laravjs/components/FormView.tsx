@@ -65,7 +65,7 @@ function Form({view, data, resource, fields}: {view: ViewType, data: Data|null, 
     return <>
         <table className="w-full">
             {fields.map(field => <tr>
-                <td className="p-2 uppercase text-zinc-500 text-right"><FieldName view={view} field={field}/>:</td>
+                <td className="p-2 uppercase text-zinc-500 text-right w-0"><FieldName view={view} field={field}/>:</td>
                 <td className="p-2"><FieldValue view={view} resource={resource} field={field} data={data?? {}} editing={editing} onChange={setEditing}/></td>
             </tr>)}
         </table>

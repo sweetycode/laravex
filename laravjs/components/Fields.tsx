@@ -1,9 +1,11 @@
-import { h } from "preact"
+import { ComponentChild, h } from "preact"
 import { BelongsToSelect, TextArea, TextInput } from "./FormControls"
 import { IconEdit, IconEye, IconInfo } from "../util/icons"
 import HtmlEditor from "./HtmlEditor"
 import { Link } from "wouter-preact"
 import _ from '../util/dash';
+import AceEditor from "./AceEditor"
+import { markdownToHtml } from "../util/markdown"
 
 export enum ViewType {
     LIST = 1<<0,
@@ -26,6 +28,8 @@ export function shouldRenderField({view, field}: {view: ViewType, field: Field})
         case 'slug':
         case 'pic':
         case 'category':
+        case 'group':
+        case 'group_seq':
         case 'tags':
             return true
         case 'created_at':
@@ -33,7 +37,8 @@ export function shouldRenderField({view, field}: {view: ViewType, field: Field})
             return view === ViewType.LIST || view === ViewType.VIEW
         case 'intro':
         case 'html_body':
-        case 'markdown':
+        case 'markdown_body':
+        case 'auto_html_body':
             return view != ViewType.LIST
     }
 }
@@ -48,12 +53,15 @@ const fieldsComponentMapping = {
     slug: StringField,
     pic: ImageField,
     category: BelongsToField,
+    group: BelongsToField,
+    group_seq: IntField,
     tags: BelongsToManyField,
     created_at: AutoTimestampField,
     updated_at: AutoTimestampField,
     intro: TextField,
     html_body: HtmlField,
-    markdown: MarkdownField,
+    auto_html_body: HtmlField,
+    markdown_body: MarkdownField,
 }
 
 type FieldValueOptions = {view: ViewType, resource: string, field: Field, data: Data, editing: Data, onChange?: (newValue: any) => void}
@@ -87,7 +95,7 @@ export function IdField({view, resource, data, field}: FieldValueOptions) {
 }
 
 export function AutoTimestampField(options: FieldValueOptions): any {
-    //todo
+    return Editor
 }
 
 export function BelongsToField({view, field, data, editing, onChange}: FieldValueOptions): any {
@@ -127,6 +135,17 @@ function StringField({view, resource, field, data, editing, onChange}: FieldValu
     }
 }
 
+function IntField({view, resource, field, data, editing, onChange}: FieldValueOptions): ComponentChild {
+    const value = data[field]
+    switch (view) {
+        case ViewType.LIST:
+        case ViewType.VIEW:
+            return value
+        default:
+            return <TextInput type="number" value={editing[field] ?? data[field]?? ''} onChange={onChangeWithKey(onChange, field)}/>
+    }
+}
+
 function ImageField({view, resource, data, field, onChange}: FieldValueOptions): any {
     const value = data[field]
     if (value == null) {
@@ -148,8 +167,8 @@ function TextField({view, resource, field, data, editing={}, onChange}: FieldVal
 }
 
 function HtmlField({view, resource, field, data, editing, onChange}: FieldValueOptions) {
-    if (view === ViewType.VIEW) {
-        return <div dangerouslySetInnerHTML={{__html: data[field] ?? ''}}>
+    if (view === ViewType.VIEW || field === 'auto_html_body') {
+        return <div dangerouslySetInnerHTML={{__html: editing[field] ?? data[field] ?? ''}}>
 
         </div>
     }
@@ -157,10 +176,18 @@ function HtmlField({view, resource, field, data, editing, onChange}: FieldValueO
 }
 
 function MarkdownField({view, resource, field, data, editing, onChange}: FieldValueOptions): any {
-    const value = data[field]
+    function onChangeWrapper(newValue: string) {
+        if (field === 'markdown_body') {
+            markdownToHtml(newValue).then(html => {
+                onChange({[field]: newValue, 'auto_html_body': html})
+            })
+        } else {
+            onChange({[field]: newValue})
+        }
+    }
     switch (view) {
         case ViewType.CREATE:
         case ViewType.EDIT:
-            return <TextArea value={editing[field] ?? data[field] ?? ''} onChange={onChange}/>
+            return <AceEditor value={editing[field] ?? data[field] ?? ''} language="markdown" onChange={onChangeWrapper}/>
     }
 }

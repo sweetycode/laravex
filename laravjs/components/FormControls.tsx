@@ -2,8 +2,8 @@ import { useMemo } from "preact/hooks"
 import { useHttpState } from "../util/requests"
 import _ from "../util/dash"
 
-export function TextInput({value, onChange}) {
-    return <input type="text" className="px-2 py-1 border rounded min-w-full" value={value} onChange={e => onChange(e.target.value)}/>
+export function TextInput({value, onChange, type="text"}) {
+    return <input type={type} className="px-2 py-1 border rounded min-w-full" value={value} onChange={e => onChange(e.target.value)}/>
 }
 
 export function TextArea({value, onChange}) {
