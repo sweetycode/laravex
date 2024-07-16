@@ -13,9 +13,11 @@ export default function AceEditor({value, onChange}) {
             const elemId = `editor-${_.autoInc()}`
             containerRef.current.id = elemId
             containerRef.current.style.fontSize = '18px'
-            editorRef.current = ace.edit(elemId)
+            editorRef.current = ace.edit(elemId, {
+                mode: "ace/mode/markdown",
+            })
+            editorRef.current.setValue(value)
             editorRef.current.setTheme("ace/theme/textmate");
-            editorRef.current.session.setMode("ace/mode/markdown");
             if (onChange) {
                 editorRef.current.session.on('change', _.debounce(() => {
                     const newValue = editorRef.current.getValue()
@@ -33,6 +35,13 @@ export default function AceEditor({value, onChange}) {
             }
         }
     }, [])
+
+    useEffect(() => {
+        if (editorRef.current && value != lastValueRef.current) {
+            lastValueRef.current = value
+            editorRef.current.setValue(value)
+        }
+    }, [value])
 
     return <div ref={containerRef} className="border rounded min-h-96 p-2"></div>
 }

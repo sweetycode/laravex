@@ -4,7 +4,7 @@ function initMarked() {
     marked.use({
         renderer: {
             link(href: string, title, text) {
-                if (href == null) {
+                if (href == null || href == '') {
                     return false
                 }
                 if (href.startsWith('./') || href.startsWith('/') || href.indexOf('://') > 0) {
@@ -14,7 +14,7 @@ function initMarked() {
                 return `<span data-tr="${href}">${text}</span>`
             },
             paragraph(html: string) {
-                const groups = html.match(/^.[a-zA-Z0-9\-]{1,9} /)
+                const groups = html.match(/^\.[a-zA-Z0-9\-]{1,9} /)
                 if (groups == null) {
                     return false
                 }

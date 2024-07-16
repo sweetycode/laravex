@@ -3,6 +3,7 @@ import { Field } from "../fields";
 import { CreateView, EditView } from "./FormView";
 import ViewView from "./ViewView";
 import ListView from "./ListView";
+import { NamedField } from "./Fields";
 
 export function ListPage({resource, fields}: {resource: string, fields: Field[]}) {
     return <>
@@ -47,12 +48,12 @@ export function ViewPage({resource, fields}: {resource: string, fields: Field[]}
     </>
 }
 
-export function ResourceRoutes({resource, fields}: {resource: string, fields: Field[]}) {
+export function ResourceRoutes({name, fields}: {name: string, fields: NamedField[]}) {
     return <Switch>
-        <Route path={`/${resource}`} component={() => <ListPage resource={resource} fields={fields}/>} />
-        <Route path={`/${resource}/create`} component={() => <CreatePage resource={resource} fields={fields}/>} />
-        <Route path={`/${resource}/:id`} component={() => <ViewPage resource={resource} fields={fields}/>}/>
-        <Route path={`/${resource}/:id/edit`} component={() => <EditPage resource={resource} fields={fields}/>}/>
+        <Route path={`/${name}`} component={() => <ListPage resource={name} fields={fields}/>} />
+        <Route path={`/${name}/create`} component={() => <CreatePage resource={name} fields={fields}/>} />
+        <Route path={`/${name}/:id`} component={() => <ViewPage resource={name} fields={fields}/>}/>
+        <Route path={`/${name}/:id/edit`} component={() => <EditPage resource={name} fields={fields}/>}/>
     </Switch>
 }
 

@@ -1,32 +1,27 @@
 import { useMemo, useState } from "preact/hooks"
 import { httpPost, httpPut, useHttpState } from "../util/requests"
 import { useLocation } from "wouter-preact"
-import { Data, Field, FieldName, FieldValue, shouldRenderField, ViewType } from "./Fields"
+import { Data, Field, FieldComponent, NamedField, ViewType } from './Fields';
 import { usePageTitle } from "../util/hooks"
 
 export function EditView({id, resource, fields}: {id: number|string, resource: string, fields: Field[]}) {
     usePageTitle(`edit ${id}-${resource}-Admin`)
-    const view = ViewType.EDIT
-    const editFields = useMemo(() => {
-        return fields.filter(field => shouldRenderField({view, field}))
-    }, fields)
+    const view: ViewType = 'edit'
+    const showFields = useMemo(() => fields.filter(field => field.isVisible({view})), [fields])
     const data = useHttpState(`/admin/api/${resource}/${id}`)
-    return <Form view={view} resource={resource} data={data} fields={editFields}/>
+    return <Form view={view} resource={resource} data={data} fields={showFields}/>
 }
 
 export function CreateView({resource, fields}: {resource: string, fields: Field[]}) {
     usePageTitle(`create ${resource}-Admin`)
-    const view = ViewType.CREATE
-    const createFields = useMemo(() => {
-        return fields.filter(field => shouldRenderField({view, field}))
-    }, fields)
-
-    return <Form view={view} resource={resource} data={null} fields={createFields}/>
+    const view: ViewType = 'create'
+    const showFields = useMemo(() => fields.filter(field => field.isVisible({view})), [fields])
+    return <Form view={view} resource={resource} data={null} fields={showFields}/>
 }
 
-function Form({view, data, resource, fields}: {view: ViewType, data: Data|null, resource: string, fields: Field[]}) {
+function Form({view, data, resource, fields}: {view: ViewType, data: Data|null, resource: string, fields: NamedField[]}) {
     const [editing, _setEditing] = useState({})
-    const [location, navigate] = useLocation()
+    const [_, navigate] = useLocation()
     function setEditing(kvs: Object) {
         _setEditing(editing => ({...editing, ...kvs}))
     }
@@ -34,24 +29,12 @@ function Form({view, data, resource, fields}: {view: ViewType, data: Data|null, 
         _setEditing(editing => ({}))
     }
 
-    function getValue(name: string): string {
-        const editingValue = editing[name]
-        if (editingValue != null) {
-            return editingValue
-        }
-        const postValue = data != null? data[name]: null
-        if (postValue) {
-            return postValue
-        }
-        return ''
-    }
-
     function handleSubmit() {
         if (Object.keys(editing).length === 0) {
             return
         }
 
-        if (view === ViewType.CREATE) {
+        if (view === 'create') {
             httpPost(`/admin/api/${resource}`, editing).then(({id}) => {
                 navigate(`/${resource}/${id}`)
             })
@@ -65,8 +48,8 @@ function Form({view, data, resource, fields}: {view: ViewType, data: Data|null, 
     return <>
         <table className="w-full">
             {fields.map(field => <tr>
-                <td className="p-2 uppercase text-zinc-500 text-right w-0"><FieldName view={view} field={field}/>:</td>
-                <td className="p-2"><FieldValue view={view} resource={resource} field={field} data={data?? {}} editing={editing} onChange={setEditing}/></td>
+                <td className="p-2 uppercase text-zinc-500 text-right w-0">{field.name}:</td>
+                <td className="p-2"><FieldComponent view={view} resource={resource} field={field} data={data?? {}} editing={editing} onChange={setEditing}/></td>
             </tr>)}
         </table>
         <div className="text-right py-2 space-x-2">

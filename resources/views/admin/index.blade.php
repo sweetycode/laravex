@@ -9,7 +9,7 @@
 @endpush
 
 @push('css')
-    @vite('resources/css/app.css')
+    @vite('resources/css/app.scss')
 @endpush
 
 @push('js')

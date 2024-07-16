@@ -2,12 +2,12 @@ import { useMemo } from 'preact/hooks';
 import { useHttpState } from '../util/requests';
 import LoadingPanel from "./LoadingPanel";
 import { Link } from 'wouter-preact';
-import { Field, FieldName, FieldValue, shouldRenderField, ViewType } from './Fields';
+import { FieldComponent, NamedField, ViewType } from './Fields';
 import { usePageTitle } from '../util/hooks';
 
-const view = ViewType.LIST
+const view: ViewType = 'list'
 
-export default function ListView({resource, fields} :{resource: string, fields: Field[]}) {
+export default function ListView({resource, fields} :{resource: string, fields: NamedField[]}) {
     const data = useHttpState(`/admin/api/${resource}`)
     usePageTitle(`${resource}-Admin`)
 
@@ -15,10 +15,7 @@ export default function ListView({resource, fields} :{resource: string, fields: 
         return <LoadingPanel/>
     }
 
-    const listFields = useMemo(() => {
-        return fields.filter(field => shouldRenderField({view, field}))
-    }, [fields])
-    console.log({listFields})
+    const showFields = useMemo(() => fields.filter(f => f.isVisible({view})), [fields])
 
     const rows = data.data
     return <>
@@ -28,11 +25,11 @@ export default function ListView({resource, fields} :{resource: string, fields: 
 
         <table className="w-full">
             <thead>
-                {listFields.map(field => <th className="border p-2 bg-zinc-200"><FieldName view={view} field={field}/></th>)}
+                {showFields.map(field => <th className="border p-2 bg-zinc-200">{field.name}</th>)}
             </thead>
             <tbody>
                 {rows.map(data => <tr>
-                    {listFields.map(field => <td className="p-1 border"><FieldValue view={view} resource={resource} field={field} data={data}/></td>)}
+                    {showFields.map(field => <td className="p-1 border"><FieldComponent view={view} resource={resource} field={field} data={data}/></td>)}
                 </tr>)}
             </tbody>
         </table>

@@ -1,29 +1,26 @@
-import { Link, Route, Router } from "wouter-preact";
-import { Field } from "./Fields";
+import { Link, Router } from "wouter-preact";
+import { NamedField } from './Fields';
 import { ResourceRoutes } from "./Pages";
 import { render } from "preact";
 
 export type NavLink = {href: string, label: string}
-export type ResourceWithFields = {resource: string, fields: Field[]}
+export type Resource = {name: string, fields: NamedField[]}
 
-export function BasicAdminApp({base='/admin', navLinks, resourcesWithFields}: {
+export function BasicAdminApp({base='/admin', navLinks, resources}: {
     base: string,
     navLinks: NavLink[],
-    resourcesWithFields: ResourceWithFields[]
+    resources: Resource[],
 }) {
     return <Router base={base}>
         <Nav navLinks={navLinks}/>
         <div className="max-w-4xl mx-auto my-4">
-            {resourcesWithFields.map(({resource, fields}) =>
-                <ResourceRoutes resource={resource} fields={fields}/>
+            {resources.map(({name, fields}) =>
+                <ResourceRoutes name={name} fields={fields}/>
             )}
         </div>
     </Router>
 }
 
-function BasicAdminHome() {
-    return <h1>home</h1>
-}
 
 function Nav({navLinks}: {navLinks: {href: string, label: string}[]}) {
     return <nav className="py-4 border-b border-gray-200">
@@ -35,12 +32,12 @@ function Nav({navLinks}: {navLinks: {href: string, label: string}[]}) {
     </nav>
 }
 
-export function renderBasicAdminApp({parentElement, base='/admin', navLinks, resourcesWithFields}: {
+export function renderBasicAdminApp({parentElement, base='/admin', navLinks, resources}: {
     parentElement: HTMLElement,
     base: string,
     navLinks: NavLink[],
-    resourcesWithFields: ResourceWithFields[]}) {
-    render(<BasicAdminApp base={base} navLinks={navLinks} resourcesWithFields={resourcesWithFields}/>, parentElement);
+    resources: Resource[]}) {
+    render(<BasicAdminApp base={base} navLinks={navLinks} resources={resources}/>, parentElement);
 }
 
 
