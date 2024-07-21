@@ -2,25 +2,26 @@ import { useMemo } from 'preact/hooks';
 import { useHttpState } from '../util/requests';
 import LoadingPanel from "./LoadingPanel";
 import { Link } from 'wouter-preact';
-import { FieldComponent, NamedField, ViewType } from './Fields';
+import { FieldComponent, ViewType } from './Fields';
 import { usePageTitle } from '../util/hooks';
+import { Resource } from './Resource';
 
 const view: ViewType = 'list'
 
-export default function ListView({resource, fields} :{resource: string, fields: NamedField[]}) {
-    const data = useHttpState(`/admin/api/${resource}`)
-    usePageTitle(`${resource}-Admin`)
+export default function ListView({resource}: {resource: Resource}) {
+    const data = useHttpState(`/admin/api/${resource.name}`)
+    usePageTitle(`${resource.name}-Admin`)
 
     if (data == null) {
         return <LoadingPanel/>
     }
 
-    const showFields = useMemo(() => fields.filter(f => f.isVisible({view})), [fields])
+    const showFields = useMemo(() => resource.fields.filter(f => f.isVisible({view})), [])
 
     const rows = data.data
     return <>
         <div className="text-right my-2">
-            <Link className="text-white bg-blue-500 hover:bg-blue-600 rounded p-1" href={`/${resource}/create`}>Create</Link>
+            <Link className="text-white bg-blue-500 hover:bg-blue-600 rounded p-1" href={`/${resource.name}/create`}>Create</Link>
         </div>
 
         <table className="w-full">

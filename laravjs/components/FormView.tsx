@@ -1,32 +1,32 @@
 import { useMemo, useState } from "preact/hooks"
-import { httpPost, httpPut, useHttpState } from "../util/requests"
+import { useHttpState } from "../util/requests"
 import { useLocation } from "wouter-preact"
-import { Data, Field, FieldComponent, NamedField, ViewType } from './Fields';
+import { Data, FieldComponent, NamedField, ViewType } from './Fields';
 import { usePageTitle } from "../util/hooks"
+import { defaultHandleSubmit, Resource } from "./Resource";
 
-export function EditView({id, resource, fields}: {id: number|string, resource: string, fields: Field[]}) {
-    usePageTitle(`edit ${id}-${resource}-Admin`)
+export function EditView({id, resource}: {id: number|string, resource: Resource}) {
+    usePageTitle(`edit ${id}-${resource.name}-Admin`)
     const view: ViewType = 'edit'
-    const showFields = useMemo(() => fields.filter(field => field.isVisible({view})), [fields])
-    const data = useHttpState(`/admin/api/${resource}/${id}`)
-    return <Form view={view} resource={resource} data={data} fields={showFields}/>
+    const data = useHttpState(`/admin/api/${resource.name}/${id}`)
+    return <Form view={view} resource={resource} data={data}/>
 }
 
-export function CreateView({resource, fields}: {resource: string, fields: Field[]}) {
+export function CreateView({resource}: {resource: Resource}) {
     usePageTitle(`create ${resource}-Admin`)
     const view: ViewType = 'create'
-    const showFields = useMemo(() => fields.filter(field => field.isVisible({view})), [fields])
-    return <Form view={view} resource={resource} data={null} fields={showFields}/>
+    return <Form view={view} resource={resource} data={null}/>
 }
 
-function Form({view, data, resource, fields}: {view: ViewType, data: Data|null, resource: string, fields: NamedField[]}) {
+function Form({view, data, resource}: {view: ViewType, data: Data|null, resource: Resource}) {
+    const fields = useMemo(() => resource.fields.filter(field => field.isVisible({view})), [])
     const [editing, _setEditing] = useState({})
     const [_, navigate] = useLocation()
     function setEditing(kvs: Object) {
         _setEditing(editing => ({...editing, ...kvs}))
     }
     function clearEditing() {
-        _setEditing(editing => ({}))
+        _setEditing(_ => ({}))
     }
 
     function handleSubmit() {
@@ -34,15 +34,14 @@ function Form({view, data, resource, fields}: {view: ViewType, data: Data|null, 
             return
         }
 
-        if (view === 'create') {
-            httpPost(`/admin/api/${resource}`, editing).then(({id}) => {
-                navigate(`/${resource}/${id}`)
-            })
-        } else {
-            httpPut(`/admin/api/${resource}/${data.id}`, editing).then(({id}) => {
-                navigate(`/${resource}/${id}`)
-            })
-        }
+        var handleSubmit = resource.handleSubmit ?? defaultHandleSubmit
+        handleSubmit({
+            view,
+            editing,
+            id: data != null? data.id: null,
+            resource,
+            navigate,
+        })
     }
 
     return <>

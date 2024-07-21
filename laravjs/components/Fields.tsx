@@ -5,6 +5,7 @@ import HtmlEditor from "./HtmlEditor"
 import { Link } from "wouter-preact"
 import _ from '../util/dash';
 import AceEditor from "./AceEditor"
+import { Resource } from "./Resource"
 
 export type ViewType = 'list'|'create'|'edit'|'view'
 
@@ -25,12 +26,17 @@ export interface NamedField extends Field {
     name: string
 }
 
-export function toPresetNamedField(name: string): NamedField {
-    const presetField = presetFieldsMap[name]
-    if (presetField == null) {
-        console.error(`encounter unknown field: ${name}`)
+export function toNamedField(name: string, extraMap?: {[index: string]: Field}): NamedField {
+    let field = extraMap != null ? extraMap[name]: null
+    if (field == null) {
+        field = presetFieldsMap[name]
     }
-    return {...presetField, name}
+    if (field == null) {
+        console.error(`failed to create named field for ${name}`)
+        return {name, isVisible: () => true, component: StringField}
+    } else {
+        return {...field, name}
+    }
 }
 
 const presetFieldsMap: {[index: string]: Field} = {
@@ -92,7 +98,7 @@ const presetFieldsMap: {[index: string]: Field} = {
     },
 }
 
-export type FieldComponentOptions = {view: ViewType, resource: string, field: NamedField, data: Data, editing: Data, onChange?: (newValue: any) => void}
+export type FieldComponentOptions = {view: ViewType, resource: Resource, field: NamedField, data: Data, editing: Data, onChange?: (newValue: any) => void}
 
 export function FieldComponent(options: FieldComponentOptions) {
     return h(options.field.component, options)
@@ -110,13 +116,13 @@ export function IdField({view, resource, data, field}: FieldComponentOptions) {
         case 'list':
             return <>
                 {id}
-                <Link href={`/${resource}/${id}`} className="ml-2 hover:text-blue-600"><IconEye/></Link>
-                <Link href={`/${resource}/${id}/edit`} className="ml-2 hover:text-blue-600"><IconEdit/></Link>
+                <Link href={`/${resource.name}/${id}`} className="ml-2 hover:text-blue-600"><IconEye/></Link>
+                <Link href={`/${resource.name}/${id}/edit`} className="ml-2 hover:text-blue-600"><IconEdit/></Link>
             </>
         case 'view':
             return <>
                 {id}
-                <Link href={`/${resource}/${id}/edit`} className="ml-2 hover:text-blue-600"><IconEdit/></Link>
+                <Link href={`/${resource.name}/${id}/edit`} className="ml-2 hover:text-blue-600"><IconEdit/></Link>
             </>
         default:
             return id
@@ -155,7 +161,7 @@ export function BelongsToManyField({view, field, data, editing, onChange}: Field
     switch (view) {
         case 'list':
         case 'view':
-            return <>{data[fieldName].map(item => <span className="rounded p-1 bg-gray-200">{item.name}</span>)}</>
+            return <>{data[fieldName] && data[fieldName].map(item => <span className="rounded p-1 bg-gray-200">{item.name}</span>)}</>
         default:
             const editingFieldName = `${fieldName}_name`
             let value = editing[editingFieldName]
@@ -166,7 +172,7 @@ export function BelongsToManyField({view, field, data, editing, onChange}: Field
     }
 }
 
-export function StringField({view, resource, field, data, editing, onChange}: FieldComponentOptions): any {
+export function StringField({view, field, data, editing, onChange}: FieldComponentOptions): any {
     const fieldName = field.name
     switch (view) {
         case 'list':
@@ -178,7 +184,7 @@ export function StringField({view, resource, field, data, editing, onChange}: Fi
     }
 }
 
-export function NumberField({view, resource, field, data, editing, onChange}: FieldComponentOptions): ComponentChild {
+export function NumberField({view, field, data, editing, onChange}: FieldComponentOptions): ComponentChild {
     switch (view) {
         case 'list':
         case 'view':
@@ -189,7 +195,7 @@ export function NumberField({view, resource, field, data, editing, onChange}: Fi
     }
 }
 
-export function ImageField({view, resource, data, field, onChange}: FieldComponentOptions): any {
+export function ImageField({data, field}: FieldComponentOptions): any {
     const value = data[field.name]
     if (value == null) {
         return 'n/a'
@@ -198,7 +204,7 @@ export function ImageField({view, resource, data, field, onChange}: FieldCompone
     }
 }
 
-export function TextField({view, resource, field, data, editing={}, onChange}: FieldComponentOptions): any {
+export function TextField({view, field, data, editing={}, onChange}: FieldComponentOptions): any {
     switch (view) {
         case 'list':
         case 'view':
@@ -209,7 +215,7 @@ export function TextField({view, resource, field, data, editing={}, onChange}: F
     }
 }
 
-export function HtmlField({view, resource, field, data, editing, onChange}: FieldComponentOptions) {
+export function HtmlField({view, field, data, editing, onChange}: FieldComponentOptions) {
     if (view === 'view') {
         return <div dangerouslySetInnerHTML={{__html: data[field.name] ?? ''}}>
 
@@ -219,7 +225,7 @@ export function HtmlField({view, resource, field, data, editing, onChange}: Fiel
     return <HtmlEditor value={value} onChange={onChangeWithKey(onChange, field.name)} />
 }
 
-export function MarkdownField({view, resource, field, data, editing, onChange}: FieldComponentOptions): any {
+export function MarkdownField({view, field, data, editing, onChange}: FieldComponentOptions): any {
     switch (view) {
         case 'create':
         case 'edit':

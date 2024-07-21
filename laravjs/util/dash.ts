@@ -18,13 +18,33 @@ const _ = {
         };
     },
 
-    pluralize: (noun: string) => {
+    plural: (noun: string) => {
         if (noun.endsWith('y')) { // category -> categories
             return noun.substring(0, noun.length - 1) + 'ies'
         }
         return noun + 's'
     },
 
+    singular: (noun: string) => {
+        if (noun.endsWith('ies')) {
+            return noun.substring(0, noun.length - 3) + 'y'
+        }
+        if (noun.endsWith('s')) {
+            return noun.substring(0, noun.length - 1)
+        }
+        return noun
+    },
+
+    capitalize: (str: string) => {
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    },
+
+    camel: (str: string) => {
+        return str.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, function(match, chr)
+            {
+                return chr.toUpperCase();
+            });
+    },
     hash: (s: string) => {
         let hash = 0
         if (s.length === 0) return hash;
@@ -34,6 +54,12 @@ const _ = {
             hash |= 0; // Convert to 32bit integer
         }
         return hash;
+    },
+    curry(fn: Function, ...bindArgs: any): Function {
+        return (...args) => fn(...bindArgs, ...args)
+    },
+    curryRight(fn: Function, ...bindArgs: any): Function {
+        return (...args) => fn(...args, ...bindArgs)
     }
 }
 

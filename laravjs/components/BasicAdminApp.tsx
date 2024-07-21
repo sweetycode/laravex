@@ -1,10 +1,9 @@
 import { Link, Router } from "wouter-preact";
-import { NamedField } from './Fields';
 import { ResourceRoutes } from "./Pages";
 import { render } from "preact";
+import { Resource } from "./Resource";
 
 export type NavLink = {href: string, label: string}
-export type Resource = {name: string, fields: NamedField[]}
 
 export function BasicAdminApp({base='/admin', navLinks, resources}: {
     base: string,
@@ -14,8 +13,8 @@ export function BasicAdminApp({base='/admin', navLinks, resources}: {
     return <Router base={base}>
         <Nav navLinks={navLinks}/>
         <div className="max-w-4xl mx-auto my-4">
-            {resources.map(({name, fields}) =>
-                <ResourceRoutes name={name} fields={fields}/>
+            {resources.map(resource =>
+                <ResourceRoutes resource={resource}/>
             )}
         </div>
     </Router>
@@ -34,7 +33,7 @@ function Nav({navLinks}: {navLinks: {href: string, label: string}[]}) {
 
 export function renderBasicAdminApp({parentElement, base='/admin', navLinks, resources}: {
     parentElement: HTMLElement,
-    base: string,
+    base?: string,
     navLinks: NavLink[],
     resources: Resource[]}) {
     render(<BasicAdminApp base={base} navLinks={navLinks} resources={resources}/>, parentElement);

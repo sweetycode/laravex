@@ -26,7 +26,7 @@ export function Select({value, onChange, options}) {
 }
 
 export function BelongsToSelect({value, fieldName, onChange}) {
-    const resource = useMemo(() => _.pluralize(fieldName), [fieldName])
+    const resource = useMemo(() => _.plural(fieldName), [fieldName])
     const items = useHttpState(`/admin/api/${resource}`)
     return <Select value={value} onChange={v => onChange(parseInt(v))} options={items == null?[]: items.data}/>
 }

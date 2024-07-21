@@ -1,59 +1,58 @@
 import { Link, Route, Switch, useParams } from "wouter-preact";
-import { Field } from "../fields";
 import { CreateView, EditView } from "./FormView";
 import ViewView from "./ViewView";
 import ListView from "./ListView";
-import { NamedField } from "./Fields";
+import { Resource } from "./BasicAdminApp";
 
-export function ListPage({resource, fields}: {resource: string, fields: Field[]}) {
+export function ListPage({resource}: {resource: Resource}) {
     return <>
-        <BreadCrumb items={[{text: resource, href: `/${resource}`},]}/>
-        <ListView resource={resource} fields={fields} />
+        <BreadCrumb items={[{text: resource.name, href: `/${resource.name}`},]}/>
+        <ListView resource={resource}/>
     </>
 }
 
-export function EditPage({resource, fields}: {resource: string, fields: Field[]}) {
+export function EditPage({resource}: {resource: Resource}) {
     const {id} = useParams()
     const breadcrumbs = [
-        {text: resource, href: `/${resource}`},
-        {text: id, href: `/${resource}/${id}`},
+        {text: resource.name, href: `/${resource.name}`},
+        {text: id, href: `/${resource.name}/${id}`},
         {text: 'edit',}
     ]
     return <>
         <BreadCrumb items={breadcrumbs}/>
-        <EditView resource={resource} fields={fields} id={id}/>
+        <EditView resource={resource} id={id}/>
     </>
 }
 
-export function CreatePage({resource, fields}: {resource: string, fields: Field[]}) {
+export function CreatePage({resource}: {resource: Resource}) {
     const breadcrumbs = [
-        {text: resource, href: `/${resource}`},
+        {text: resource.name, href: `/${resource.name}`},
         {text: 'create',}
     ]
     return <>
         <BreadCrumb items={breadcrumbs}/>
-        <CreateView resource={resource} fields={fields} />
+        <CreateView resource={resource} />
     </>
 }
 
-export function ViewPage({resource, fields}: {resource: string, fields: Field[]}) {
+export function ViewPage({resource}: {resource: Resource}) {
     const {id} = useParams()
     const breadcrumbs = [
-        {text: resource, href: `/${resource}`},
+        {text: resource.name, href: `/${resource.name}`},
         {text: id},
     ]
     return <>
-        <BreadCrumb items={breadcrumbs}/>
-        <ViewView resource={resource} fields={fields} id={id}/>
+    <BreadCrumb items={breadcrumbs}/>
+        <ViewView resource={resource} id={id}/>
     </>
 }
 
-export function ResourceRoutes({name, fields}: {name: string, fields: NamedField[]}) {
+export function ResourceRoutes({resource}: {resource: Resource}) {
     return <Switch>
-        <Route path={`/${name}`} component={() => <ListPage resource={name} fields={fields}/>} />
-        <Route path={`/${name}/create`} component={() => <CreatePage resource={name} fields={fields}/>} />
-        <Route path={`/${name}/:id`} component={() => <ViewPage resource={name} fields={fields}/>}/>
-        <Route path={`/${name}/:id/edit`} component={() => <EditPage resource={name} fields={fields}/>}/>
+        <Route path={`/${resource.name}`} component={() => <ListPage resource={resource}/>} />
+        <Route path={`/${resource.name}/create`} component={() => <CreatePage resource={resource}/>} />
+        <Route path={`/${resource.name}/:id`} component={() => <ViewPage resource={resource}/>}/>
+        <Route path={`/${resource.name}/:id/edit`} component={() => <EditPage resource={resource}/>}/>
     </Switch>
 }
 
