@@ -1,4 +1,4 @@
-@extends('laravex::layouts.html')
+@extends('laravex::layouts.skeleton')
 
 @php
     $pageTitle = 'Admin'

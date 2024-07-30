@@ -89,7 +89,7 @@ const presetFieldsMap: {[index: string]: Field} = {
         component: HtmlField,
     },
     generated_html_body: {
-        isVisible: ({view}) => view != 'list',
+        isVisible: ({view}) => view == 'view',
         component: HtmlField,
     },
     markdown_body: {

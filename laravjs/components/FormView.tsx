@@ -47,13 +47,13 @@ function Form({view, data, resource}: {view: ViewType, data: Data|null, resource
     return <>
         <table className="w-full">
             {fields.map(field => <tr>
-                <td className="p-2 uppercase text-zinc-500 text-right w-0">{field.name}:</td>
-                <td className="p-2"><FieldComponent view={view} resource={resource} field={field} data={data?? {}} editing={editing} onChange={setEditing}/></td>
+                <td className="py-2 text-zinc-500 text-right w-0">{field.name}:</td>
+                <td className="py-2"><FieldComponent view={view} resource={resource} field={field} data={data?? {}} editing={editing} onChange={setEditing}/></td>
             </tr>)}
         </table>
         <div className="text-right py-2 space-x-2">
-            <a onClick={clearEditing} className="text-white bg-gray-500 hover:bg-gray-600 px-2 py-1 rounded cursor-pointer">Reset</a>
-            <a onClick={handleSubmit} className="text-white bg-blue-500 hover:bg-blue-600 px-2 py-1 rounded cursor-pointer">Submit</a>
+            <a onClick={clearEditing} className="text-white bg-gray-500 hover:bg-gray-600 px-4 py-2 rounded cursor-pointer">Reset</a>
+            <a onClick={handleSubmit} className="text-white bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded cursor-pointer">Submit</a>
         </div>
         <div className="p-4 border rounded bg-zinc-100 my-4">
             <pre>{JSON.stringify(editing, null, 2)}</pre>

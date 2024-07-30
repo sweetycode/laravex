@@ -4,6 +4,7 @@ namespace Laravex\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Laravex\Console\Commands\AddUserCommand;
+use Laravex\Console\Commands\GenerateSitemapCommand;
 
 class LaravexServiceProvider extends ServiceProvider {
     /**
@@ -22,6 +23,7 @@ class LaravexServiceProvider extends ServiceProvider {
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'laravex');
         if ($this->app->runningInConsole()) {
             $this->commands(AddUserCommand::class);
+            $this->commands(GenerateSitemapCommand::class);
         }
     }
 }

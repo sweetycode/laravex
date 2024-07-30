@@ -21,12 +21,25 @@ trait AdminControllerTrait {
             Route::put($prefix.$name.'/{id}', ['App\Http\Controllers\AdminController', 'update'.Str::ucfirst(Str::camel(Str::singular($name)))]);
             Route::post($prefix.$name, ['App\Http\Controllers\AdminController', 'store'.Str::ucfirst(Str::camel(Str::singular($name)))]);
         }
+
+        Route::get($prefix.'stats', ['App\Http\Controllers\AdminController', 'stats']);
+    }
+
+    function stats() {
+        $resources = static::getResources();
+        $result = [];
+        foreach(array_keys($resources) as $name) {
+            $modelClass = static::resourceNameToModelClass($name);
+            $count = call_user_func([$modelClass, 'count']);
+            $result[] = ['resource' => $name, 'count' => $count];
+        }
+        return response()->json($result);
     }
 
     function __call($method, $args) {
         [$action, $name] = static::parseResourceOperation($method);
         $resource = static::getResources()[$name];
-        $modelClass = 'App\\Models\\' . Str::ucfirst(Str::camel(Str::singular($name)));
+        $modelClass = static::resourceNameToModelClass($name);
 
         switch($action) {
             case 'list':
@@ -118,5 +131,9 @@ trait AdminControllerTrait {
             }
         }
         throw new \BadMethodCallException("Can't parse the method name of " . $methodName);
+    }
+
+    private static function resourceNameToModelClass(string $name) {
+        return 'App\\Models\\' . Str::ucfirst(Str::camel(Str::singular($name)));
     }
 }
