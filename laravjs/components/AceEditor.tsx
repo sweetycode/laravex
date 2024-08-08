@@ -2,7 +2,7 @@ import { useEffect, useRef } from "preact/hooks";
 import _ from "../util/dash";
 import { dynScript, dynStyle } from "../util/dom";
 
-export default function AceEditor({value, onChange}) {
+export default function AceEditor({value, onChange, autoWrapLines=false}) {
     const containerRef = useRef()
     const editorRef = useRef()
     const lastValueRef = useRef(value)
@@ -13,14 +13,17 @@ export default function AceEditor({value, onChange}) {
             const elemId = `editor-${_.autoInc()}`
             containerRef.current.id = elemId
             containerRef.current.style.fontSize = '18px'
-            editorRef.current = ace.edit(elemId, {
+            const editor = editorRef.current = ace.edit(elemId, {
                 mode: "ace/mode/markdown",
             })
-            editorRef.current.setValue(value)
-            editorRef.current.setTheme("ace/theme/textmate");
+            editor.setValue(value)
+            editor.setTheme("ace/theme/textmate");
+            if (autoWrapLines) {
+                editor.session.setUseWrapMode(true)
+            }
             if (onChange) {
-                editorRef.current.session.on('change', _.debounce(() => {
-                    const newValue = editorRef.current.getValue()
+                editor.session.on('change', _.debounce(() => {
+                    const newValue = editor.getValue()
                     if (newValue != lastValueRef.current) {
                         onChange(lastValueRef.current = newValue)
                     }

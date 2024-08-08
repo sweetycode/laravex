@@ -1,9 +1,10 @@
-import { useMemo, useState } from "preact/hooks"
+import { useEffect, useMemo, useState } from "preact/hooks"
 import { useHttpState } from "../util/requests"
 import { useLocation } from "wouter-preact"
-import { Data, FieldComponent, NamedField, ViewType } from './Fields';
+import { Data, FieldComponent, ViewType } from './Fields';
 import { usePageTitle } from "../util/hooks"
 import { defaultHandleSubmit, Resource } from "./Resource";
+import { codeToHtml } from "shiki";
 
 export function EditView({id, resource}: {id: number|string, resource: Resource}) {
     usePageTitle(`edit ${id}-${resource.name}-Admin`)
@@ -55,9 +56,24 @@ function Form({view, data, resource}: {view: ViewType, data: Data|null, resource
             <a onClick={clearEditing} className="text-white bg-gray-500 hover:bg-gray-600 px-4 py-2 rounded cursor-pointer">Reset</a>
             <a onClick={handleSubmit} className="text-white bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded cursor-pointer">Submit</a>
         </div>
-        <div className="p-4 border rounded bg-zinc-100 my-4">
-            <pre>{JSON.stringify(editing, null, 2)}</pre>
-        </div>
+        <JsonView value={editing}/>
     </>
+}
+
+function JsonView({value}) {
+    const [html, setHtml] = useState('')
+    useEffect(() => {
+        codeToHtml(JSON.stringify(value, null, 2), {
+            lang: 'json', theme: 'light-plus',
+            transformers: [{
+                pre(node) {
+                    this.addClassToHast(node, 'text-wrap')
+                }
+            }],
+        })
+        .then(setHtml)
+    }, [value])
+    return <div className="p-4 border rounded my-4 text-wrap" dangerouslySetInnerHTML={{__html: html}}>
+    </div>
 }
 

@@ -55,7 +55,7 @@ const presetFieldsMap: {[index: string]: Field} = {
     },
     source: {
         isVisible: visibleExceptList,
-        component: StringField,
+        component: TextField,
     },
     pic: {
         isVisible: () => true,
@@ -228,7 +228,7 @@ export function HtmlField({view, field, data, editing, onChange}: FieldComponent
 
 export function MarkdownField({view, field, data, editing, onChange}: FieldComponentOptions): any {
     if (view == 'list' || view == 'view') {
-        return <pre>{data[field.name]}</pre>
+        return <pre class="text-wrap">{data[field.name]}</pre>
     }
     const fieldName = field.name
     function onChangeWrapper(newValue) {
@@ -240,7 +240,7 @@ export function MarkdownField({view, field, data, editing, onChange}: FieldCompo
             onChange({[fieldName]: newValue})
         }
     }
-    return <AceEditor value={editing[field.name] ?? data[field.name] ?? ''} language="markdown" onChange={onChangeWrapper}/>
+    return <AceEditor value={editing[field.name] ?? data[field.name] ?? ''} language="markdown" onChange={onChangeWrapper} autoWrapLines={true}/>
 }
 
 export function interceptOnChange(fieldComponent: FieldComponent, onChangeInterceptor: (newValue: any, options: FieldComponentOptions) => void): FieldComponent {
