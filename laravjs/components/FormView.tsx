@@ -47,8 +47,8 @@ function Form({view, data, resource}: {view: ViewType, data: Data|null, resource
     return <>
         <table className="w-full">
             {fields.map(field => <tr>
-                <td className="py-2 text-zinc-500 text-right w-0">{field.name}:</td>
-                <td className="py-2"><FieldComponent view={view} resource={resource} field={field} data={data?? {}} editing={editing} onChange={setEditing}/></td>
+                <td className="py-2 text-zinc-500 text-right w-0 text-sm">{field.name}:</td>
+                <td className="py-2 pl-1"><FieldComponent view={view} resource={resource} field={field} data={data?? {}} editing={editing} onChange={setEditing}/></td>
             </tr>)}
         </table>
         <div className="text-right py-2 space-x-2">

@@ -2,7 +2,9 @@
 
 namespace Laravex\Console\Commands;
 
+use App\Services\SitemapService;
 use Illuminate\Console\Command;
+use Laravex\Utils\SitemapCollector;
 
 class GenerateSitemapCommand extends Command
 {
@@ -20,11 +22,22 @@ class GenerateSitemapCommand extends Command
      */
     protected $description = 'Generate sitemap';
 
+    private SitemapService $sitemapService;
+
+    function __construct(SitemapService $sitemapService) {
+        parent::__construct();
+        $this->sitemapService = $sitemapService;
+    }
+
     /**
      * Execute the console command.
      */
-    public function handle()
+    function handle()
     {
-        //TODO
+        $collector = new SitemapCollector();
+        $this->sitemapService->collectSitemap($collector);
+        $result = view('laravex::sitemap.index', ['items' => []])->render();
+        file_put_contents(public_path('sitemap.xml'), $result);
+        $this->info('generate sitemap succeed at public/sitemap.xml');
     }
 }

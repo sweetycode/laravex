@@ -6,6 +6,7 @@ import { Link } from "wouter-preact"
 import _ from '../util/dash';
 import AceEditor from "./AceEditor"
 import { Resource } from "./Resource"
+import { markdownToHtml } from "../util/markdown"
 
 export type ViewType = 'list'|'create'|'edit'|'view'
 
@@ -161,7 +162,7 @@ export function BelongsToManyField({view, field, data, editing, onChange}: Field
     switch (view) {
         case 'list':
         case 'view':
-            return <>{data[fieldName] && data[fieldName].map(item => <span className="rounded p-1 bg-gray-200">{item.name}</span>)}</>
+            return <div className="space-x-1">{data[fieldName] && data[fieldName].map(item => <span className="rounded px-1 py-0.5 text-sm text-gray-900 bg-gray-200 text-nowrap">{item.name}</span>)}</div>
         default:
             const editingFieldName = `${fieldName}_name`
             let value = editing[editingFieldName]
@@ -226,13 +227,20 @@ export function HtmlField({view, field, data, editing, onChange}: FieldComponent
 }
 
 export function MarkdownField({view, field, data, editing, onChange}: FieldComponentOptions): any {
-    switch (view) {
-        case 'create':
-        case 'edit':
-            return <AceEditor value={editing[field.name] ?? data[field.name] ?? ''} language="markdown" onChange={onChangeWithKey(onChange, field.name)}/>
-        default:
-            return <pre>{data[field.name]}</pre>
+    if (view == 'list' || view == 'view') {
+        return <pre>{data[field.name]}</pre>
     }
+    const fieldName = field.name
+    function onChangeWrapper(newValue) {
+        if (fieldName == 'markdown_body') {
+            markdownToHtml(newValue).then(html => {
+                onChange({[fieldName]: newValue, 'generated_html_body': html})
+            })
+        } else {
+            onChange({[fieldName]: newValue})
+        }
+    }
+    return <AceEditor value={editing[field.name] ?? data[field.name] ?? ''} language="markdown" onChange={onChangeWrapper}/>
 }
 
 export function interceptOnChange(fieldComponent: FieldComponent, onChangeInterceptor: (newValue: any, options: FieldComponentOptions) => void): FieldComponent {
