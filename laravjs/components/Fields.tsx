@@ -1,5 +1,5 @@
-import { ComponentChild, h, options } from "preact"
-import { BelongsToSelect, CommaTextInput, DateTimeInput, TextArea, TextInput } from "./FormControls"
+import { ComponentChild, h } from "preact"
+import { BelongsToSelect, CommaTextInput, DateTimePicker, TextArea, TextInput } from './FormControls';
 import { IconEdit, IconEye, IconInfo } from "../util/icons"
 import HtmlEditor from "./HtmlEditor"
 import { Link } from "wouter-preact"
@@ -137,7 +137,7 @@ export function TimestampField({view, field, data, editing, onChange}: FieldComp
         case 'view':
             return data[field.name] ?? ''
         default:
-            return <DateTimeInput value={editing[field.name]??data[field.name]??''} onChange={onChangeWithKey(onChange, field.name)}/>
+            return <DateTimePicker value={editing[field.name]??data[field.name]??''} onChange={onChangeWithKey(onChange, field.name)}/>
     }
 }
 
