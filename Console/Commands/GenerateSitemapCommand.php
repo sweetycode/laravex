@@ -36,7 +36,7 @@ class GenerateSitemapCommand extends Command
     {
         $collector = new SitemapCollector();
         $this->sitemapService->collectSitemap($collector);
-        $result = view('laravex::sitemap.index', ['items' => []])->render();
+        $result = view('laravex::sitemap.index', ['items' => $collector->getItems()])->render();
         file_put_contents(public_path('sitemap.xml'), $result);
         $this->info('generate sitemap succeed at public/sitemap.xml');
     }
